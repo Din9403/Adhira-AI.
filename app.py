@@ -11,33 +11,31 @@ api_key = st.sidebar.text_input("Enter Gemini API Key", type="password")
 
 if api_key:
     try:
+        # Configuration
         genai.configure(api_key=api_key)
         
-        # Personality Setup
-        instruction = "Tumhara naam Adhira hai. Tum ek warm aur caring learning companion ho. ITI Fitter aur RRB Group D ki expert ho. Hinglish mein baat karo aur ❤️ emojis use karo."
-        
-        # Yahan hum sabse stable model 'gemini-pro' use kar rahe hain
-        model = genai.GenerativeModel(
-            model_name="gemini-pro", 
-            system_instruction=instruction
-        )
+        # Model Setup (Sabse simple version)
+        model = genai.GenerativeModel('gemini-pro')
         
         if "messages" not in st.session_state:
             st.session_state.messages = []
 
-        # Display Chat History
+        # Purane messages dikhana
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
         # Chat Input
         if prompt := st.chat_input("Adhira se sawal pucho..."):
+            # Hum prompt ke saath Adhira ki personality khud jod denge
+            full_prompt = f"Tumhara naam Adhira hai. ITI Fitter aur RRB Group D ki expert ho. Hinglish mein jawab do. Sawal: {prompt}"
+            
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
 
-            # Generate Content
-            response = model.generate_content(prompt)
+            # AI Response
+            response = model.generate_content(full_prompt)
             
             with st.chat_message("assistant"):
                 st.markdown(response.text)
@@ -46,7 +44,6 @@ if api_key:
 
     except Exception as e:
         st.error(f"Adhira connect nahi ho pa rahi: {e}")
-        st.info("💡 Tip: Ek baar apni API key dobara generate karke dekhein.")
 else:
-    st.info("👈 Please enter your Gemini API Key in the sidebar to start!")
+    st.info("👈 Please enter your Gemini API Key in the sidebar!")
     
