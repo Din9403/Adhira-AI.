@@ -16,7 +16,12 @@ if api_key:
         
         # Adhira ki Personality
         instruction = "Tumhara naam Adhira hai. ITI Fitter aur RRB Group D ki expert ho. Hinglish mein baat karo aur hamesha supportive raho. ❤️"
-        model = genai.GenerativeModel(model_name="gemini-1.5-flash", system_instruction=instruction)
+        
+        # Model update: Yaha hum 'gemini-pro' ya updated flash version use karenge
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash-latest", # 'latest' lagane se 404 error hat jayega
+            system_instruction=instruction
+        )
         
         # Chat History maintain karna
         if "messages" not in st.session_state:
@@ -33,7 +38,7 @@ if api_key:
             with st.chat_message("user"):
                 st.markdown(prompt)
 
-            # AI ka jawab nikalna
+            # AI ka jawab nikalna (safety settings ke bina fast chalega)
             response = model.generate_content(prompt)
             full_response = response.text
             
@@ -43,7 +48,8 @@ if api_key:
             st.session_state.messages.append({"role": "assistant", "content": full_response})
 
     except Exception as e:
-        st.error(f"Error: {e}")
+        # Agar ab bhi error aaye toh ye exact problem batayega
+        st.error(f"Oh no! Adhira ko connect karne mein dikkat ho rahi hai: {e}")
 else:
     st.info("👈 Please enter your Gemini API Key in the sidebar to start talking with Adhira!")
-  
+    
