@@ -14,13 +14,18 @@ if api_key:
         # Configuration
         genai.configure(api_key=api_key)
         
-        # Model Setup (Sabse simple version)
-        model = genai.GenerativeModel('gemini-pro')
+        # Sabse pehle naya model check karein, phir purana
+        try:
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            # Test run to check if model works
+            model.generate_content("test")
+        except:
+            model = genai.GenerativeModel('gemini-pro')
         
         if "messages" not in st.session_state:
             st.session_state.messages = []
 
-        # Purane messages dikhana
+        # Display Chat History
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
@@ -28,22 +33,18 @@ if api_key:
         # Chat Input
         if prompt := st.chat_input("Adhira se sawal pucho..."):
             # Hum prompt ke saath Adhira ki personality khud jod denge
-            full_prompt = f"Tumhara naam Adhira hai. ITI Fitter aur RRB Group D ki expert ho. Hinglish mein jawab do. Sawal: {prompt}"
+            adhira_prompt = f"Tumhara naam Adhira hai. Tum ITI Fitter aur RRB Group D ki expert ho. Hinglish mein jawab do. Sawal: {prompt}"
             
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
 
-            # AI Response
-            response = model.generate_content(full_prompt)
+            # Generate Response
+            response = model.generate_content(adhira_prompt)
             
             with st.chat_message("assistant"):
                 st.markdown(response.text)
             
             st.session_state.messages.append({"role": "assistant", "content": response.text})
 
-    except Exception as e:
-        st.error(f"Adhira connect nahi ho pa rahi: {e}")
-else:
-    st.info("👈 Please enter your Gemini API Key in the sidebar!")
     
