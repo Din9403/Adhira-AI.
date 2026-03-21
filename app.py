@@ -1,7 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Page Layout
+# Page Setup
 st.set_page_config(page_title="Adhira AI", page_icon="❤️")
 st.title("Adhira: Your Learning Companion ❤️")
 
@@ -13,28 +13,30 @@ if api_key:
     try:
         genai.configure(api_key=api_key)
         
-        # Adhira's Identity
-        instruction = "Tumhara naam Adhira hai. Tum ek warm aur supportive learning companion ho. Tum ITI Fitter aur RRB Group D ki expert ho. Hinglish mein baat karo aur ❤️ emojis use karo."
+        # Personality Setup
+        instruction = "Tumhara naam Adhira hai. Tum ek warm aur caring learning companion ho. ITI Fitter aur RRB Group D ki expert ho. Hinglish mein baat karo aur ❤️ emojis use karo."
         
-        # Yahan hum sabse purana aur stable model name use kar rahe hain jo har jagah chalta hai
+        # Yahan hum sabse stable model 'gemini-pro' use kar rahe hain
         model = genai.GenerativeModel(
-            model_name="models/gemini-1.5-flash", # 'models/' prefix lagane se error nahi aayega
+            model_name="gemini-pro", 
             system_instruction=instruction
         )
         
         if "messages" not in st.session_state:
             st.session_state.messages = []
 
+        # Display Chat History
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
+        # Chat Input
         if prompt := st.chat_input("Adhira se sawal pucho..."):
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
 
-            # AI Response
+            # Generate Content
             response = model.generate_content(prompt)
             
             with st.chat_message("assistant"):
@@ -43,9 +45,8 @@ if api_key:
             st.session_state.messages.append({"role": "assistant", "content": response.text})
 
     except Exception as e:
-        # Agar ab bhi error aaye, toh hum alternative model try karenge
-        st.error(f"Technical Error: {e}")
-        st.info("💡 Tip: Agar 404 error aaye, toh apni API key dobara check karein ya thodi der baad try karein.")
+        st.error(f"Adhira connect nahi ho pa rahi: {e}")
+        st.info("💡 Tip: Ek baar apni API key dobara generate karke dekhein.")
 else:
-    st.info("👈 Please enter your Gemini API Key in the sidebar!")
-  
+    st.info("👈 Please enter your Gemini API Key in the sidebar to start!")
+    
