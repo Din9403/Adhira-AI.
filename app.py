@@ -4,14 +4,15 @@ import google.generativeai as genai
 # --- CONFIGURATION ---
 API_KEY = "AIzaSyD3mlCfbd9vU9xV97Q7CTN6fxwOd5I_8mQ"
 
+# Clear cache to avoid old errors
+st.cache_resource.clear()
+
 try:
-    # API Configure karna
     genai.configure(api_key=API_KEY)
     
-    # Naya aur stable model 'gemini-1.5-pro' use kar rahe hain
-    model = genai.GenerativeModel(
-        model_name="gemini-1.5-pro"
-    )
+    # Sabse stable model configuration
+    model = genai.GenerativeModel('gemini-pro')
+    
 except Exception as e:
     st.error(f"Setup Error: {e}")
 
@@ -33,11 +34,14 @@ if prompt := st.chat_input("Adhira se kuch puchiye..."):
 
     with st.chat_message("assistant"):
         try:
-            # Response generate karna
+            # Direct generate content call
             response = model.generate_content(prompt)
-            st.markdown(response.text)
-            st.session_state.messages.append({"role": "assistant", "content": response.text})
+            if response.text:
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
+            else:
+                st.warning("Adhira soch rahi hai... dubara koshish karein.")
         except Exception as e:
-            # Agar ab bhi error aaye toh ye line asli wajah batayegi
             st.error(f"Technical Detail: {e}")
+            st.info("Agar 404 aa raha hai, toh Google AI Studio mein ek nayi API Key generate karke dekhein.")
             
