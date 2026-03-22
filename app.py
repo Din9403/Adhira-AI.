@@ -2,14 +2,15 @@ import streamlit as st
 import google.generativeai as genai
 
 # --- CONFIGURATION ---
-# Yahan apni NAYI API Key quotes (" ") ke andar dalein
-API_KEY = "AIzaSyCeDjQy2a4jSjSNhHgUktx8_YApIKTArCQ"
+# Yahan apni NAYI API Key quotes ke andar dalein
+API_KEY = "AIzaSyB4SjFhbXH9mjczY8CkhzrbOKXjsd4vVWw"
 
 try:
+    # API setup
     genai.configure(api_key=API_KEY)
     
-    # Hum model ko bina version suffix ke call karenge
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    # Sabse stable model call
+    model = genai.GenerativeModel('gemini-pro')
     
 except Exception as e:
     st.error(f"Setup Error: {e}")
@@ -40,8 +41,8 @@ if prompt := st.chat_input("Adhira se kuch puchiye..."):
                 st.markdown(response.text)
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
             else:
-                st.write("Adhira soch rahi hai... dubara koshish karein.")
+                st.warning("Adhira soch rahi hai... dubara koshish karein.")
         except Exception as e:
-            # Agar ab bhi error aaye toh ye exact detail dikhayega
+            # Ye line asli error dikhayegi agar ab bhi koi dikkat rahi toh
             st.error(f"Technical Detail: {e}")
             
