@@ -2,19 +2,12 @@ import streamlit as st
 import google.generativeai as genai
 
 # --- CONFIGURATION ---
+# Yahan apni NAYI API Key dalein
 API_KEY = "AIzaSyCeDjQy2a4jSjSNhHgUktx8_YApIKTArCQ"
 
-# Clear cache to avoid old errors
-st.cache_resource.clear()
-
-try:
-    genai.configure(api_key=API_KEY)
-    
-    # Sabse stable model configuration
-    model = genai.GenerativeModel('gemini-pro')
-    
-except Exception as e:
-    st.error(f"Setup Error: {e}")
+# AI Setup
+genai.configure(api_key=API_KEY)
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 # --- APP UI ---
 st.set_page_config(page_title="Adhira AI", page_icon="✨")
@@ -23,10 +16,12 @@ st.title("✨ Adhira AI Assistant")
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Chat history dikhana
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+# User input
 if prompt := st.chat_input("Adhira se kuch puchiye..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -34,14 +29,9 @@ if prompt := st.chat_input("Adhira se kuch puchiye..."):
 
     with st.chat_message("assistant"):
         try:
-            # Direct generate content call
             response = model.generate_content(prompt)
-            if response.text:
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
-            else:
-                st.warning("Adhira soch rahi hai... dubara koshish karein.")
+            st.markdown(response.text)
+            st.session_state.messages.append({"role": "assistant", "content": response.text})
         except Exception as e:
-            st.error(f"Technical Detail: {e}")
-            st.info("Agar 404 aa raha hai, toh Google AI Studio mein ek nayi API Key generate karke dekhein.")
+            st.error(f"Error: {e}")
             
