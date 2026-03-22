@@ -9,7 +9,7 @@ try:
     genai.configure(api_key=API_KEY)
     
     # Hum model ko bina version suffix ke call karenge
-    model = genai.GenerativeModel('gemini-pro')
+    model = genai.GenerativeModel('gemini-1.5-flash')
     
 except Exception as e:
     st.error(f"Setup Error: {e}")
