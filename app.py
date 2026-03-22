@@ -5,11 +5,12 @@ import google.generativeai as genai
 API_KEY = "AIzaSyD3mlCfbd9vU9xV97Q7CTN6fxwOd5I_8mQ"
 
 try:
+    # API Configure karna
     genai.configure(api_key=API_KEY)
     
-    # Humne yahan model ka naam badal kar 'gemini-pro' kar diya hai
+    # Naya aur stable model 'gemini-1.5-pro' use kar rahe hain
     model = genai.GenerativeModel(
-        model_name="gemini-pro"
+        model_name="gemini-1.5-pro"
     )
 except Exception as e:
     st.error(f"Setup Error: {e}")
@@ -37,5 +38,6 @@ if prompt := st.chat_input("Adhira se kuch puchiye..."):
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
         except Exception as e:
-            st.error(f"Error: {e}")
+            # Agar ab bhi error aaye toh ye line asli wajah batayegi
+            st.error(f"Technical Detail: {e}")
             
