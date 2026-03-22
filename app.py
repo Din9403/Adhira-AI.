@@ -2,16 +2,14 @@ import streamlit as st
 import google.generativeai as genai
 
 # --- CONFIGURATION ---
-# Aapki API Key (Jo aapne di thi)
 API_KEY = "AIzaSyD3mlCfbd9vU9xV97Q7CTN6fxwOd5I_8mQ"
 
 try:
     genai.configure(api_key=API_KEY)
     
-    # Hum 'gemini-1.5-flash' use karenge kyunki ye sabse fast hai
+    # Humne yahan model ka naam badal kar 'gemini-pro' kar diya hai
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        system_instruction="Tumhara naam Adhira hai. Tum ek intelligent AI assistant ho jo RRB Group D aur ITI Fitter ki padhai mein madad karti ho."
+        model_name="gemini-pro"
     )
 except Exception as e:
     st.error(f"Setup Error: {e}")
@@ -39,7 +37,5 @@ if prompt := st.chat_input("Adhira se kuch puchiye..."):
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
         except Exception as e:
-            # Yahan hume asli error dikhega
-            st.error(f"Asli Error ye hai: {e}")
-            st.info("Agar 'API_KEY_INVALID' likha hai, toh Google AI Studio se nayi key banayein.")
+            st.error(f"Error: {e}")
             
