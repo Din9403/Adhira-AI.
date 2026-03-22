@@ -1,84 +1,43 @@
 import streamlit as st
 import google.generativeai as genai
-import requests
-import time
-import os
 
-# 1. Page Config
-st.set_page_config(page_title="Adhira Talking AI", page_icon="❤️")
+# --- CONFIGURATION ---
+# Yahan apni API Key dalein (Agar Streamlit Secrets use kar rahe hain toh baad mein batata hoon)
+API_KEY = "YAHAN_APNI_API_KEY_PASTE_KAREIN"
 
-# 2. Sidebar Settings (Yahan dono Keys aayengi)
-with st.sidebar:
-    st.title("Adhira Settings")
-    if os.path.exists("adhira.jpg"):
-        st.image("adhira.jpg", caption="Adhira - Your Learning Companion")
-    
-    # --- YE DO LINES ZAROORI HAIN ---
-    gemini_key = st.text_input("Enter Gemini API Key", type="password")
-    did_key = st.text_input("Enter D-ID API Key (Z25...)", type="password")
-    # -------------------------------
-    
-    st.info("D-ID credits limited hote hain, dhyan se use karein!")
+genai.configure(api_key=API_KEY)
 
-st.title("Adhira: Talking AI Companion ❤️")
+# Assistant ki settings (System Instruction)
+model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    system_instruction="Tumhara naam Adhira hai. Tum ek bahut hi intelligent aur friendly AI assistant ho. Tum user ki padhai, RRB Group D exam preparation aur ITI Fitter trade se jude sawalon mein madad karti ho. Tumhara lehza hamesha prerak (motivational) hona chahiye."
+)
 
-# 3. Baaki ka Video aur Chat Logic (Pehle wala hi)
-def generate_talk(text, did_api_key):
-    url = "https://api.d-id.com/talks"
-    headers = {
-        "Authorization": f"Basic {did_api_key}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "script": {
-            "type": "text",
-            "input": text,
-            "provider": {"type": "microsoft", "voice_id": "hi-IN-SwaraNeural"} 
-        },
-        "source_url": "https://raw.githubusercontent.com/Din9403/Adhira-AI./main/adhira.jpg",
-        "config": {"fluid": True}
-    }
-    res = requests.post(url, json=payload, headers=headers)
-    return res.json().get("id") if res.status_code == 201 else None
+# --- APP UI (Mobile Friendly) ---
+st.set_page_config(page_title="Adhira AI", page_icon="✨")
+st.markdown("<h2 style='text-align: center;'>✨ Adhira AI Assistant</h2>", unsafe_allow_html=True)
 
-def get_video_url(talk_id, did_api_key):
-    url = f"https://api.d-id.com/talks/{talk_id}"
-    headers = {"Authorization": f"Basic {did_api_key}"}
-    while True:
-        res = requests.get(url, headers=headers).json()
-        if res.get("status") == "done": return res.get("result_url")
-        if res.get("status") == "error": return None
-        time.sleep(2)
+# Chat history setup
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-if gemini_key and did_key:
-    try:
-        genai.configure(api_key=gemini_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        
-        if "messages" not in st.session_state: st.session_state.messages = []
+# Purani chats dikhana
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-        for msg in st.session_state.messages:
-            with st.chat_message(msg["role"]): st.markdown(msg["content"])
+# User input
+if prompt := st.chat_input("Adhira se kuch puchiye..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-        if prompt := st.chat_input("Adhira se sawal pucho..."):
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"): st.markdown(prompt)
-
-            adhira_prompt = f"Tumhara naam Adhira hai. ITI Fitter expert ho. Hinglish mein sirf 1-2 lines mein jawab do. Sawal: {prompt}"
-            response = model.generate_content(adhira_prompt)
-            answer = response.text
+    # Adhira ka response
+    with st.chat_message("assistant"):
+        try:
+            response = model.generate_content(prompt)
+            st.markdown(response.text)
+            st.session_state.messages.append({"role": "assistant", "content": response.text})
+        except Exception as e:
+            st.error("Kuch technical issue lag raha hai. Check karein ki API Key sahi hai ya nahi.")
             
-            with st.chat_message("assistant"):
-                st.markdown(answer)
-                with st.spinner("Adhira bolne ki tayaari kar rahi hai..."):
-                    talk_id = generate_talk(answer, did_key)
-                    if talk_id:
-                        v_url = get_video_url(talk_id, did_key)
-                        if v_url: st.video(v_url)
-            
-            st.session_state.messages.append({"role": "assistant", "content": answer})
-    except Exception as e:
-        st.error(f"Error: {e}")
-else:
-    st.info("👈 Sidebar mein Gemini aur D-ID dono Keys dalein!")
-    
