@@ -57,5 +57,5 @@ if prompt := st.chat_input("Yahan apna sawal likhein..."):
             st.markdown(adhira_reply)
             st.session_state.messages.append({"role": "assistant", "content": adhira_reply})
         except Exception as e:
-            st.error("Maaf kijiyega, main abhi jawab nahi de pa rahi hoon. Ek baar apni API key check karein.")
+            st.error(f"Error details: {e}")("Maaf kijiyega, main abhi jawab nahi de pa rahi hoon. Ek baar apni API key check karein.")
             
