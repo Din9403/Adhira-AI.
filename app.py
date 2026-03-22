@@ -2,12 +2,17 @@ import streamlit as st
 import google.generativeai as genai
 
 # --- CONFIGURATION ---
-# Yahan apni NAYI API Key dalein
+# Yahan apni NAYI API Key quotes (" ") ke andar dalein
 API_KEY = "AIzaSyB4SjFhbXH9mjczY8CkhzrbOKXjsd4vVWw"
 
-# AI Setup
-genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
+try:
+    genai.configure(api_key=API_KEY)
+    
+    # Hum 'gemini-1.5-flash' use karenge lekin simple tarike se
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    
+except Exception as e:
+    st.error(f"Setup Error: {e}")
 
 # --- APP UI ---
 st.set_page_config(page_title="Adhira AI", page_icon="✨")
@@ -29,9 +34,14 @@ if prompt := st.chat_input("Adhira se kuch puchiye..."):
 
     with st.chat_message("assistant"):
         try:
+            # Response generate karna
             response = model.generate_content(prompt)
-            st.markdown(response.text)
-            st.session_state.messages.append({"role": "assistant", "content": response.text})
+            if response.text:
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
+            else:
+                st.write("Adhira soch rahi hai... dubara koshish karein.")
         except Exception as e:
-            st.error(f"Error: {e}")
+            # Asli error dikhayega agar ab bhi koi dikkat rahi toh
+            st.error(f"Technical Detail: {e}")
             
